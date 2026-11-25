@@ -1,78 +1,186 @@
-# Employee & Task Management System
+# PeopleDesk – Employee & Task Management System
 
-A MERN application for managing employees, assigning work, tracking task status and viewing team workload.
+A full-stack employee and task management application built to simplify team operations. PeopleDesk helps manage employee records, assign tasks, monitor progress, and get a clear overview of team workload through a centralized dashboard.
 
-## Stack
-- React + Vite + React Router
-- Node.js + Express
-- MongoDB + Mongoose
-- Axios and plain CSS
+## 🚀 Live Demo
 
-## Requirements
-Node.js 18.18+ and MongoDB (local or Atlas).
+- **Live Application:** https://people-desk-mthtneqqw-satwikkk07s-projects.vercel.app/
+- **Backend API:** https://peopledesk-ksgg.onrender.com
+- **GitHub Repository:** https://github.com/satwikkk07/PeopleDesk
 
-## Run locally
+## ✨ Features
 
-### 1. Backend
+### Dashboard
+- Overview of employees and task statistics.
+- Track active, completed, cancelled and overdue tasks.
+- Get a quick view of team workload.
+
+### Employee Management
+- Add, view, update and delete employee records.
+- Manage employee details, departments and employment status.
+- Search and filter employees.
+- Prevent deletion when an employee has active tasks.
+
+### Task Management
+- Create, assign, edit and delete tasks.
+- Set priorities, start dates and due dates.
+- Track task progress through controlled status transitions.
+- Filter and search tasks by relevant fields.
+- View employee details associated with each task.
+
+### Additional Capabilities
+- Server-side pagination, filtering and sorting.
+- URL-based filter state for easier navigation.
+- CSV export for task records.
+- Assignment validation based on employee availability.
+- Automatic completion date handling.
+- Persistent data storage using MongoDB.
+
+## 🛠️ Tech Stack
+
+| Layer | Technologies |
+|---|---|
+| Frontend | React, Vite, React Router |
+| Backend | Node.js, Express.js |
+| Database | MongoDB, Mongoose |
+| HTTP Client | Axios |
+| Styling | CSS |
+| Deployment | Vercel, Render |
+| Version Control | Git, GitHub |
+
+## 🏗️ Project Structure
+
+```text
+PeopleDesk/
+│
+├── client/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── api/
+│   │   └── ...
+│   ├── package.json
+│   └── .env.example
+│
+├── server/
+│   ├── controllers/
+│   ├── models/
+│   ├── routes/
+│   ├── middleware/
+│   ├── package.json
+│   └── .env.example
+│
+├── .gitignore
+└── README.md
+```
+
+## ⚙️ Getting Started
+
+Follow these steps to run PeopleDesk locally.
+
+### Prerequisites
+
+- Node.js 18.18 or later
+- npm
+- MongoDB local instance or MongoDB Atlas account
+- Git
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/satwikkk07/PeopleDesk.git
+cd PeopleDesk
+```
+
+### 2. Set up the backend
+
 ```bash
 cd server
-cp .env.example .env
-# Set MONGODB_URI and PORT in .env
 npm install
+```
+
+Create a `.env` file using `.env.example` and configure:
+
+```env
+PORT=5000
+MONGODB_URI=your_mongodb_connection_string
+CLIENT_URL=http://localhost:5173
+NODE_ENV=development
+```
+
+Start the backend:
+
+```bash
 npm run dev
 ```
-The API runs at `http://localhost:5000`. Health check: `/api/health`.
 
-### 2. Frontend
-In another terminal:
+The API will be available at `http://localhost:5000`.
+
+Health check: `http://localhost:5000/api/health`
+
+### 3. Set up the frontend
+
+Open another terminal:
+
 ```bash
 cd client
-cp .env.example .env
 npm install
+```
+
+Create a `.env` file using `.env.example`:
+
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+Start the frontend:
+
+```bash
 npm run dev
 ```
-Open the Vite URL shown in the terminal. Set `VITE_API_URL` to the backend URL including `/api`.
 
-## Environment variables
-Backend: `PORT`, `MONGODB_URI`, `CLIENT_URL`, `NODE_ENV`.
-Frontend: `VITE_API_URL`.
+Open the local URL displayed in your terminal, usually `http://localhost:5173`.
 
-## API overview
-- `GET/POST /api/employees`
-- `GET/PUT/DELETE /api/employees/:id`
-- `GET/POST /api/tasks`
-- `GET/PUT/DELETE /api/tasks/:id`
-- `PUT /api/tasks/:id/status` (the only status transition endpoint)
-- `GET /api/dashboard`
-- `GET /api/tasks/export/csv`
+## 🔌 API Overview
 
-List endpoints accept `page`, `limit`, `search`, `department`, `priority`, `status`, `dueFrom`, `dueTo`, and `sort`. Task sorting supports `createdAt`, `dueDate`, `priority`, and `title`.
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/health` | API health check |
+| GET | `/api/dashboard` | Dashboard statistics |
+| GET / POST | `/api/employees` | List or create employees |
+| GET / PUT / DELETE | `/api/employees/:id` | Manage an employee |
+| GET / POST | `/api/tasks` | List or create tasks |
+| GET / PUT / DELETE | `/api/tasks/:id` | Manage a task |
+| PUT | `/api/tasks/:id/status` | Update task status |
+| GET | `/api/tasks/export/csv` | Export tasks as CSV |
 
-## Data model and relationship
-An employee has a unique `employeeId` and normalized unique email. A task stores the employee ObjectId and an `employeeSnapshot` (name, employee ID, department). The snapshot keeps historical task records readable if an employee is later deleted.
+List endpoints support pagination, search, filtering and sorting.
 
-## Business rules
-- Task assignment is validated on the server. Inactive employees cannot receive tasks. On Leave employees are blocked only when the task start date falls within the leave dates, inclusive.
-- Due date cannot precede start date.
-- New tasks always start as Todo. Status changes use the dedicated status endpoint and only allow Todo → In Progress, Todo → Cancelled, In Progress → Completed, and In Progress → Cancelled.
-- Completed/Cancelled tasks cannot be edited. Completed date is assigned by the server.
-- An employee can have at most three active tasks (Todo + In Progress).
-- An employee cannot be deleted while they have active tasks.
-- Overdue means today's date is later than due date and status is neither Completed nor Cancelled.
+## 🧩 Key Implementation Details
 
-## Assignment questions
-1. **Where are status transitions validated and why?** In the task status controller on the backend. A client can be modified or bypassed, so the API is the trusted boundary. The regular task update endpoint does not accept status.
-2. **Why does Completed Date come from the backend?** It is a system event timestamp. Taking it from the browser would allow clients to submit incorrect or future dates and create inconsistent records.
-3. **How are inactive/on-leave assignments blocked?** Before creating or reassigning a task, the server loads the employee, rejects Inactive status, and checks whether the task start date is inside an On Leave period (inclusive).
-4. **Why are filtering and pagination on the backend?** It avoids transferring the full collection, scales better, and makes the server the consistent source of truth for results and totals.
-5. **Why do filters live in the URL?** URLs can be refreshed, bookmarked, shared, and navigated with browser history while preserving the exact list state.
-6. **What if two requests assign a fourth active task simultaneously?** Both requests could read a count of two before either writes, then both insert and exceed capacity. A production-grade solution should make the capacity check and write atomic, for example with a transaction plus a per-employee lock/counter or another serialized allocation strategy. A simple count-then-create check is vulnerable to this race.
+- **Data integrity:** Employee IDs and normalized email addresses are unique.
+- **Task assignment:** Inactive employees and employees on leave during a task's start date cannot be assigned new work.
+- **Workload management:** Employees can have a maximum of three active tasks.
+- **Date validation:** A task's due date cannot be earlier than its start date.
+- **Status management:** Task status changes follow defined transitions and are validated on the backend.
+- **Completion tracking:** Completion dates are generated by the server.
+- **Historical records:** Employee snapshots are stored with tasks to preserve assignment information if an employee is deleted.
 
-## Notes / assumptions
-- Dates are stored as MongoDB dates and treated as calendar dates for validation.
-- No authentication is included, as requested.
-- For a production deployment, use MongoDB Atlas and set CORS origins explicitly.
-- The basic capacity check is implemented in the API; see the concurrency note above for the additional protection needed under simultaneous writes.
+## 🔐 Environment & Configuration
 
+Keep environment variables in local `.env` files and never commit credentials or secrets.
 
-Deployment configuration verified for Vercel.
+The backend requires `PORT`, `MONGODB_URI`, `CLIENT_URL` and `NODE_ENV`.
+
+The frontend requires `VITE_API_URL`, pointing to the backend API with the `/api` path.
+
+## 👨‍💻 Author
+
+**Satwik Milind Pawar**
+
+- GitHub: [@satwikkk07](https://github.com/satwikkk07)
+- LinkedIn: [Satwik Pawar](https://www.linkedin.com/in/satwikpawar07/)
+
+---
+
+Built with React, Node.js, Express and MongoDB.
