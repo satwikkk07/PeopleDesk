@@ -73,3 +73,6 @@ An employee has a unique `employeeId` and normalized unique email. A task stores
 - No authentication is included, as requested.
 - For a production deployment, use MongoDB Atlas and set CORS origins explicitly.
 - The basic capacity check is implemented in the API; see the concurrency note above for the additional protection needed under simultaneous writes.
+
+
+Deployment configuration verified for Vercel.
